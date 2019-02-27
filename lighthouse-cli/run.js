@@ -171,11 +171,12 @@ async function saveResults(runnerResult, flags) {
 async function potentiallyKillChrome(launchedChrome) {
   if (!launchedChrome) return;
 
-  try {
-    await launchedChrome.kill();
-  } catch (err) {
+  return Promise.race([
+    launchedChrome.kill(),
+    new Promise((_, reject) => setTimeout(reject, 5000, 'Timed out.')),
+  ]).catch(err => {
     process.stderr.write(`Couldn't quit Chrome process. ${err.toString()}\n`);
-  }
+  });
 }
 
 /**
