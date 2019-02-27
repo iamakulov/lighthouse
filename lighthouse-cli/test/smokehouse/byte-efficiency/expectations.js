@@ -34,13 +34,13 @@ module.exports = [
               wastedPercent: 87.40117365133875,
             },
             {
-              url: 'http://localhost:10200/byte-efficiency/tester.html',
+              url: 'inline: \n  function unusedFunction() {\n    // Un...',
               totalBytes: 6607,
               wastedBytes: 6581,
               wastedPercent: 99.60353766392193,
             },
             {
-              url: 'http://localhost:10200/byte-efficiency/tester.html',
+              url: 'inline: \n  // Used block #1\n  // FILLER DATA JUS...',
               totalBytes: 6559,
               wastedBytes: 6559,
               wastedPercent: 100,
