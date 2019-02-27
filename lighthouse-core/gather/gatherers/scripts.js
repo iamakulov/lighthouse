@@ -46,6 +46,7 @@ class Scripts extends Gatherer {
         ...inlineScripts.map(content => {
           return {
             content,
+            inline: true,
             requestId: mainResource ? mainResource.requestId : undefined,
           };
         })
@@ -61,6 +62,7 @@ class Scripts extends Gatherer {
         if (content) {
           scripts.push({
             content,
+            inline: false,
             requestId: record.requestId,
           });
         }
