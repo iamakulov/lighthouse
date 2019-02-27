@@ -34,8 +34,11 @@ const PROTOCOL_TIMEOUT_EXIT_CODE = 67;
 const PAGE_HUNG_EXIT_CODE = 68;
 const INSECURE_DOCUMENT_REQUEST_EXIT_CODE = 69;
 const RETRIES = 3;
-const NUMERICAL_EXPECTATION_REGEXP = /^(<=?|>=?)((\d|\.)+)$/;
 const VERBOSE = Boolean(process.env.LH_SMOKE_VERBOSE);
+const NUMBER_REGEXP = /(?:\d|\.)+/.source;
+const OPS_REGEXP = /<=?|>=?|\+\/-/.source;
+const NUMERICAL_EXPECTATION_REGEXP =
+  new RegExp(`^(${NUMBER_REGEXP})?\\s?(${OPS_REGEXP})\\s?(${NUMBER_REGEXP})$`);
 
 /**
  * Attempt to resolve a path locally. If this fails, attempts to locate the path
@@ -149,17 +152,19 @@ function runLighthouse(url, configPath, isDebug) {
 function matchesExpectation(actual, expected) {
   if (typeof actual === 'number' && NUMERICAL_EXPECTATION_REGEXP.test(expected)) {
     const parts = expected.match(NUMERICAL_EXPECTATION_REGEXP);
-    const operator = parts[1];
-    const number = parseFloat(parts[2]);
+    const operator = parts[2];
+    const numbers = [parts[1], parts[3]].filter(p => typeof p !== 'undefined').map(parseFloat);
     switch (operator) {
       case '>':
-        return actual > number;
+        return actual > numbers[0];
       case '>=':
-        return actual >= number;
+        return actual >= numbers[0];
       case '<':
-        return actual < number;
+        return actual < numbers[0];
       case '<=':
-        return actual <= number;
+        return actual <= numbers[0];
+      case '+/-':
+        return Math.abs(actual - numbers[0]) <= numbers[1];
       default:
         throw new Error(`unexpected operator ${operator}`);
     }
