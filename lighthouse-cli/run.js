@@ -175,7 +175,7 @@ async function potentiallyKillChrome(launchedChrome) {
     launchedChrome.kill(),
     new Promise((_, reject) => setTimeout(reject, 5000, 'Timed out.')),
   ]).catch(err => {
-    process.stderr.write(`Couldn't quit Chrome process. ${err.toString()}\n`);
+    throw new Error(`Couldn't quit Chrome process. ${err}`);
   });
 }
 
@@ -189,7 +189,7 @@ async function runLighthouse(url, flags, config) {
   /** @param {any} reason */
   async function handleTheUnhandled(reason) {
     process.stderr.write(`Unhandled Rejection. Reason: ${reason}\n`);
-    await potentiallyKillChrome(launchedChrome);
+    await potentiallyKillChrome(launchedChrome).catch(() => {});
     setTimeout(_ => {
       process.exit(1);
     }, 100);
@@ -218,7 +218,7 @@ async function runLighthouse(url, flags, config) {
 
     return runnerResult;
   } catch (err) {
-    await potentiallyKillChrome(launchedChrome);
+    await potentiallyKillChrome(launchedChrome).catch(() => {});
     handleError(err);
   }
 }
