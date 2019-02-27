@@ -89,7 +89,7 @@ describe('Page uses optimized responses', () => {
             // we can't fake the size to get over the threshold w/o a network record,
             // so make some really big code instead
             var a = 0;
-            // ${'a++;'.repeat(1000)}
+            // ${'a++;'.repeat(2000)}
         `,
         },
       ],
@@ -97,9 +97,11 @@ describe('Page uses optimized responses', () => {
 
     assert.strictEqual(auditResult.items.length, 1);
     const item = auditResult.items[0];
-    assert.strictEqual(item.url, '?');
-    assert.strictEqual(Math.round(item.wastedBytes / 1024), 2);
-    assert.strictEqual(Math.round(item.wastedPercent), 98);
+    if (!item.url.startsWith('inline: ')) {
+      assert.fail('url should start with "inline: "');
+    }
+    assert.strictEqual(Math.round(item.wastedBytes / 1024), 3);
+    assert.strictEqual(Math.round(item.wastedPercent), 99);
   });
 
   it('passes when scripts are already minified', () => {
