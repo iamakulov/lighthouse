@@ -41,8 +41,8 @@ module.exports = [
             },
             {
               url: 'inline: \n  // Used block #1\n  // FILLER DATA JUS...',
-              totalBytes: 6559,
-              wastedBytes: 6559,
+              totalBytes: 6558,
+              wastedBytes: 6558,
               wastedPercent: 100,
             },
           ],
