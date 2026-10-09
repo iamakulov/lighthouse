@@ -100,6 +100,26 @@ const UIStrings = {
   bestPracticesBrowserCompatGroupTitle: 'Browser Compatibility',
   /** Title of the General group of the Best Practices category. Within this section are the audits that don't belong to a specific group but are of general interest. */
   bestPracticesGeneralGroupTitle: 'General',
+  /** Title of the Agentic Browsing category of audits. */
+  agenticBrowsingCategoryTitle: 'Agentic Browsing',
+  /** Description of the Agentic Browsing category. */
+  agenticBrowsingCategoryDescription: 'These checks ensure high-quality, [browsable websites for AI agents](https://goo.gle/lighthouse-agentic-web) ' +
+  'and validate the correctness of WebMCP integrations. ' +
+  'This category is still under development and subject to change.',
+  /** Title of the WebMCP group of audits. */
+  webmcpGroupTitle: 'WebMCP',
+  /** Description of the WebMCP group. */
+  webmcpGroupDescription: 'Audits validating WebMCP integration.',
+  /** Title of the Agent Accessibility group of audits. */
+  agentAccessibilityGroupTitle: 'Agent Accessibility',
+  /** Description of the Agent Accessibility group of audits. */
+  agentAccessibilityGroupDescription: 'These audits highlight best practices for improving the ' +
+  'accessibility of the website for AI agents.',
+  /** Title of the Agent Discoverability group of audits. */
+  agentDiscoverabilityGroupTitle: 'Agent Discoverability',
+  /** Description of the Agent Discoverability group of audits. */
+  agentDiscoverabilityGroupDescription: 'These audits validate that websites expose discoverable resources, ' +
+    'documentation, and catalogs for AI agents.',
 };
 
 const str_ = i18n.createIcuMessageFn(import.meta.url, UIStrings);
@@ -108,6 +128,9 @@ const str_ = i18n.createIcuMessageFn(import.meta.url, UIStrings);
 const defaultConfig = {
   settings: constants.defaultSettings,
   artifacts: [
+    {id: 'WebMCP', gatherer: 'webmcp'},
+    {id: 'WebMcpSchemaIssues', gatherer: 'webmcp-schema'},
+    {id: 'LlmsTxt', gatherer: 'agentic/llms-txt'},
     // Artifacts which can be depended on come first.
     {id: 'DevtoolsLog', gatherer: 'devtools-log'},
     {id: 'Trace', gatherer: 'trace'},
@@ -127,6 +150,7 @@ const defaultConfig = {
     {id: 'MetaElements', gatherer: 'meta-elements'},
     {id: 'NetworkUserAgent', gatherer: 'network-user-agent'},
     {id: 'RobotsTxt', gatherer: 'seo/robots-txt'},
+    {id: 'AgentResourceDiscovery', gatherer: 'agentic/ard'},
     {id: 'Scripts', gatherer: 'scripts'},
     {id: 'SourceMaps', gatherer: 'source-maps'},
     {id: 'Stacks', gatherer: 'stacks'},
@@ -254,6 +278,9 @@ const defaultConfig = {
     'accessibility/manual/offscreen-content-hidden',
     'accessibility/manual/use-landmarks',
     'accessibility/manual/visual-order-follows-dom',
+    'accessibility/autocomplete-valid',
+    'accessibility/presentation-role-conflict',
+    'accessibility/svg-img-alt',
     'byte-efficiency/total-byte-weight',
     'byte-efficiency/unminified-css',
     'byte-efficiency/unminified-javascript',
@@ -266,6 +293,7 @@ const defaultConfig = {
     'dobetterweb/js-libraries',
     'dobetterweb/notification-on-start',
     'dobetterweb/paste-preventing-inputs',
+    'baseline',
     'seo/meta-description',
     'seo/http-status-code',
     'seo/link-text',
@@ -275,6 +303,12 @@ const defaultConfig = {
     'seo/hreflang',
     'seo/canonical',
     'seo/manual/structured-data',
+    'agentic/agent-accessibility-tree',
+    'webmcp-registered-tools',
+    'webmcp-form-coverage',
+    'webmcp-schema-validity',
+    'agentic/llms-txt',
+    'agentic/ard-schema',
     'bf-cache',
     'insights/cache-insight',
     'insights/cls-culprits-insight',
@@ -361,6 +395,18 @@ const defaultConfig = {
     },
     'best-practices-general': {
       title: str_(UIStrings.bestPracticesGeneralGroupTitle),
+    },
+    'webmcp': {
+      title: str_(UIStrings.webmcpGroupTitle),
+      description: str_(UIStrings.webmcpGroupDescription),
+    },
+    'agent-accessibility': {
+      title: str_(UIStrings.agentAccessibilityGroupTitle),
+      description: str_(UIStrings.agentAccessibilityGroupDescription),
+    },
+    'agent-discoverability': {
+      title: str_(UIStrings.agentDiscoverabilityGroupTitle),
+      description: str_(UIStrings.agentDiscoverabilityGroupDescription),
     },
     // Group for audits that should not be displayed.
     'hidden': {title: ''},
@@ -514,6 +560,9 @@ const defaultConfig = {
         {id: 'valid-lang', weight: 7, group: 'a11y-language'}, // Serious, wcag2aa
         {id: 'video-caption', weight: 10, group: 'a11y-audio-video'}, // Critical, wcag2a
         {id: 'landmark-one-main', weight: 3, group: 'a11y-best-practices'}, // Moderate, best-practice
+        {id: 'autocomplete-valid', weight: 1, group: 'a11y-best-practices'}, // Informational
+        {id: 'presentation-role-conflict', weight: 1, group: 'a11y-best-practices'}, // Informational
+        {id: 'svg-img-alt', weight: 1, group: 'a11y-best-practices'}, // Informational
         // Manual audits
         {id: 'focusable-controls', weight: 0},
         {id: 'interactive-element-affordance', weight: 0},
@@ -559,6 +608,7 @@ const defaultConfig = {
         // Browser Compatibility
         {id: 'doctype', weight: 1, group: 'best-practices-browser-compat'},
         {id: 'charset', weight: 1, group: 'best-practices-browser-compat'},
+        {id: 'baseline', weight: 0, group: 'best-practices-browser-compat'},
         // General Group
         {id: 'js-libraries', weight: 0, group: 'best-practices-general'},
         {id: 'deprecations', weight: 5, group: 'best-practices-general'},
@@ -591,6 +641,21 @@ const defaultConfig = {
         {id: 'canonical', weight: 1, group: 'seo-content'},
         // Manual audits
         {id: 'structured-data', weight: 0},
+      ],
+    },
+    'agentic-browsing': {
+      title: str_(UIStrings.agenticBrowsingCategoryTitle),
+      description: str_(UIStrings.agenticBrowsingCategoryDescription),
+      supportedModes: ['navigation', 'snapshot'],
+      categoryScoreDisplayMode: 'fraction',
+      auditRefs: [
+        {id: 'agent-accessibility-tree', weight: 1, group: 'agent-accessibility'},
+        {id: 'webmcp-form-coverage', weight: 1, group: 'webmcp'},
+        {id: 'webmcp-registered-tools', weight: 1, group: 'webmcp'},
+        {id: 'webmcp-schema-validity', weight: 1, group: 'webmcp'},
+        {id: 'cumulative-layout-shift', weight: 1, acronym: 'CLS'},
+        {id: 'llms-txt', weight: 1, group: 'agent-discoverability'},
+        {id: 'ard-schema', weight: 1, group: 'agent-discoverability'},
       ],
     },
   },

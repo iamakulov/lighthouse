@@ -13,9 +13,8 @@ import {pageFunctions} from '../../lib/page-functions.js';
 /**
  * @return {Promise<LH.Artifacts.Accessibility>}
  */
-/* c8 ignore start */
 async function runA11yChecks() {
-  /** @type {import('axe-core/axe')} */
+  /** @type {typeof import('axe-core/axe')} */
   // @ts-expect-error - axe defined by axeLibSource
   const axe = window.axe;
   const application = `lighthouse-${Math.random()}`;
@@ -50,6 +49,7 @@ async function runA11yChecks() {
       'aria-roledescription': {enabled: false},
       'aria-treeitem-name': {enabled: true},
       'aria-text': {enabled: true},
+      'autocomplete-valid': {enabled: true},
       'audio-caption': {enabled: false},
       'blink': {enabled: false},
       'duplicate-id': {enabled: false},
@@ -69,6 +69,7 @@ async function runA11yChecks() {
       // https://github.com/dequelabs/axe-core/issues/2958
       'nested-interactive': {enabled: false},
       'no-autoplay-audio': {enabled: false},
+      'presentation-role-conflict': {enabled: true},
       'role-img-alt': {enabled: false},
       'scrollable-region-focusable': {enabled: false},
       'select-name': {enabled: true},
@@ -76,12 +77,13 @@ async function runA11yChecks() {
       'skip-link': {enabled: true},
       // https://github.com/GoogleChrome/lighthouse/issues/16163
       'summary-name': {enabled: false},
-      'svg-img-alt': {enabled: false},
+      'svg-img-alt': {enabled: true},
       'tabindex': {enabled: true},
       'table-duplicate-name': {enabled: true},
       'table-fake-caption': {enabled: true},
       'target-size': {enabled: true},
       'td-has-header': {enabled: true},
+      'aria-tab-name': {enabled: false}, // TODO: consider adding.
     },
   });
 
@@ -176,9 +178,10 @@ function createAxeRuleResultArtifact(result) {
     tags: result.tags,
     nodes,
     error,
+    help: result.help,
+    description: result.description,
   };
 }
-/* c8 ignore stop */
 
 class Accessibility extends BaseGatherer {
   /** @type {LH.Gatherer.GathererMeta} */

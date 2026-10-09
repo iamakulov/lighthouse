@@ -34,9 +34,9 @@ async function toBase64(string, options) {
       const compAb = await new Response(cs.readable).arrayBuffer();
       bytes = new Uint8Array(compAb);
     } else {
-      /** @type {import('pako')=} */
+      /** @type {typeof import('pako')=} */
       const pako = window.pako;
-      bytes = pako.gzip(string);
+      bytes = /** @type {any} */ (pako.gzip(string));
     }
   }
 
@@ -60,7 +60,7 @@ function fromBase64(encoded, options) {
   const bytes = Uint8Array.from(binaryString, c => c.charCodeAt(0));
 
   if (options.gzip) {
-    /** @type {import('pako')=} */
+    /** @type {typeof import('pako')=} */
     const pako = window.pako;
     return pako.ungzip(bytes, {to: 'string'});
   } else {

@@ -21,7 +21,7 @@ import {fnAny} from '../test-utils.js';
 import {NetworkMonitor} from '../../gather/driver/network-monitor.js';
 
 /** @typedef {import('../../gather/driver.js').Driver} Driver */
-/** @typedef {import('../../gather/driver/execution-context.js')} ExecutionContext */
+/** @typedef {typeof import('../../gather/driver/execution-context.js')} ExecutionContext */
 
 function createMockSession() {
   const mockSendCommand = createMockSendCommandFn();
@@ -110,6 +110,8 @@ function createMockPage() {
   return {
     url: fnAny().mockReturnValue('https://example.com'),
     goto: fnAny(),
+    on: fnAny(),
+    close: fnAny(),
     target: () => ({createCDPSession: () => createMockSession()}),
 
     /** @return {LH.Puppeteer.Page} */
@@ -126,6 +128,8 @@ function createMockExecutionContext() {
     evaluateAsync: fnAny(),
     evaluateOnNewDocument: fnAny(),
     cacheNativesOnNewDocument: fnAny(),
+    evaluateOnObject: fnAny(),
+    evaluateOnObjectAsync: fnAny(),
 
     /** @return {ExecutionContext} */
     asExecutionContext() {

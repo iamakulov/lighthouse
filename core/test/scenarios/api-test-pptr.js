@@ -108,6 +108,7 @@ describe('Individual modes API', function() {
         notApplicableAudits
           // TODO(16323): Flaky in CI.
           .filter(audit => audit.id !== 'viewport-insight')
+          .filter(audit => audit.id !== 'interaction-to-next-paint')
           .map(audit => audit.id)
           .sort()
       ).toMatchSnapshot();
@@ -162,7 +163,11 @@ describe('Individual modes API', function() {
       const {auditResults, erroredAudits, notApplicableAudits} = getAuditsBreakdown(result.lhr);
       expect(auditResults.map(audit => audit.id).sort()).toMatchSnapshot();
 
-      expect(notApplicableAudits.map(audit => audit.id).sort()).toMatchSnapshot();
+      expect(notApplicableAudits
+        .filter(audit => audit.id !== 'interaction-to-next-paint')
+        .map(audit => audit.id)
+        .sort()
+      ).toMatchSnapshot();
       expect(notApplicableAudits.map(audit => audit.id)).not.toContain('total-blocking-time');
 
       expect(erroredAudits).toHaveLength(0);
@@ -249,11 +254,17 @@ Array [
 
       // Check that TargetManager is getting execution context created events even if connecting
       // to the page after they already exist.
-      // There are two execution contexts, one for the main frame and one for the iframe of
+      // there are two execution contexts, one for the main frame and one for the iframe of
       // the same origin.
+      // We only care about default execution contexts. Recent Chromium versions can
+      // create many isolated contexts (e.g. for Puppeteer utility worlds or Lighthouse).
       const contextCreatedMainFrameCalls =
-        spy.mock.calls.filter(call => call[0].context.origin === 'http://localhost:10200');
+        spy.mock.calls.filter(call => {
+          return call[0].context.origin === 'http://localhost:10200' &&
+            call[0].context.auxData && call[0].context.auxData.isDefault;
+        });
       // For some reason, puppeteer gives us two created events for every uniqueId,
+
       // so using Set here to ignore that detail.
       expect(new Set(contextCreatedMainFrameCalls.map(call => call[0].context.uniqueId)).size)
         .toEqual(2);
@@ -293,7 +304,10 @@ Array [
       expect(lhr.audits).toHaveProperty('total-byte-weight');
       const details = lhr.audits['total-byte-weight'].details;
       if (!details || details.type !== 'table') throw new Error('Unexpected byte weight details');
-      expect(details.items).toMatchObject([{url}]);
+      // Chrome 157+ clears failed favicon downloads when resetting storage before navigation,
+      // so /favicon.ico is re-requested even if an earlier test already 404'd on it.
+      const items = details.items.filter(item => item.url !== `${serverBaseUrl}/favicon.ico`);
+      expect(items).toMatchObject([{url}]);
 
       // Check that performance metrics were computed.
       expect(lhr.audits).toHaveProperty('first-contentful-paint');

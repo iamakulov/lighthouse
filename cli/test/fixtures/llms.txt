@@ -1,0 +1,5 @@
+# Lighthouse
+
+> Lighthouse is an open-source, automated tool for improving the quality of web pages.
+
+For more information, see the [Lighthouse documentation](https://developer.chrome.com/docs/lighthouse/).

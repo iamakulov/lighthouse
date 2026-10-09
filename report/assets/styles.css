@@ -156,6 +156,10 @@
   --error-icon-url: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3 15"><title>error</title><path d="M0 15H 3V 12H 0V" fill="%23FF4E42"/><path d="M0 9H 3V 0H 0V" fill="%23FF4E42"/></svg>');
 
   --swap-locale-icon-url: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 0 24 24" width="24px" fill="%23000000"><path d="M0 0h24v24H0V0z" fill="none"/><path d="M12.87 15.07l-2.54-2.51.03-.03c1.74-1.94 2.98-4.17 3.71-6.53H17V4h-7V2H8v2H1v1.99h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/></svg>');
+  
+  --baseline-high-icon-url: url("data:image/svg+xml;utf8,<svg width='18' height='10' viewBox='0 0 540 300' fill='none' xmlns='http://www.w3.org/2000/svg'> <path d='M420 30L390 60L480 150L390 240L330 180L300 210L390 300L540 150L420 30Z' fill='%23C4EED0'/> <path d='M150 0L30 120L60 150L150 60L210 120L240 90L150 0Z' fill='%23C4EED0'/> <path d='M390 0L420 30L150 300L0 150L30 120L150 240L390 0Z' fill='%231EA446'/> </svg>");
+  --baseline-low-icon-url: url("data:image/svg+xml;utf8,<svg width='18' height='10' viewBox='0 0 540 300' fill='none' xmlns='http://www.w3.org/2000/svg'> <path d='M150 0L180 30L150 60L120 30L150 0Z' fill='%23A8C7FA'/> <path d='M210 60L240 90L210 120L180 90L210 60Z' fill='%23A8C7FA'/> <path d='M450 60L480 90L450 120L420 90L450 60Z' fill='%23A8C7FA'/> <path d='M510 120L540 150L510 180L480 150L510 120Z' fill='%23A8C7FA'/> <path d='M450 180L480 210L450 240L420 210L450 180Z' fill='%23A8C7FA'/> <path d='M390 240L420 270L390 300L360 270L390 240Z' fill='%23A8C7FA'/> <path d='M330 180L360 210L330 240L300 210L330 180Z' fill='%23A8C7FA'/> <path d='M90 60L120 90L90 120L60 90L90 60Z' fill='%23A8C7FA'/> <path d='M390 0L420 30L150 300L0 150L30 120L150 240L390 0Z' fill='%231B6EF3'/> </svg>");
+  --baseline-limited-icon-url: url("data:image/svg+xml;utf8,<svg width='18' height='10' viewBox='0 0 540 300' fill='none' xmlns='http://www.w3.org/2000/svg'> <path d='M150 0L240 90L210 120L120 30L150 0Z' fill='%23F09409'/> <path d='M420 30L540 150L420 270L390 240L480 150L390 60L420 30Z' fill='%23C6C6C6'/> <path d='M330 180L300 210L390 300L420 270L330 180Z' fill='%23F09409'/> <path d='M120 30L150 60L60 150L150 240L120 270L0 150L120 30Z' fill='%23C6C6C6'/> <path d='M390 0L420 30L150 300L120 270L390 0Z' fill='%23F09409'/> </svg>");
 }
 
 @media not print {
@@ -510,6 +514,9 @@
 .lh-report-icon--experiment::before {
   background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="none"><path d="M4.50002 17C3.86136 17 3.40302 16.7187 3.12502 16.156C2.84702 15.5933 2.90936 15.069 3.31202 14.583L7.50002 9.5V4.5H6.75002C6.54202 4.5 6.36502 4.427 6.21902 4.281C6.07302 4.135 6.00002 3.958 6.00002 3.75C6.00002 3.542 6.07302 3.365 6.21902 3.219C6.36502 3.073 6.54202 3 6.75002 3H13.25C13.458 3 13.635 3.073 13.781 3.219C13.927 3.365 14 3.542 14 3.75C14 3.958 13.927 4.135 13.781 4.281C13.635 4.427 13.458 4.5 13.25 4.5H12.5V9.5L16.688 14.583C17.0767 15.069 17.132 15.5933 16.854 16.156C16.5767 16.7187 16.1254 17 15.5 17H4.50002ZM4.50002 15.5H15.5L11 10V4.5H9.00002V10L4.50002 15.5Z" fill="black"/></svg>');
 }
+.lh-report-icon--plugin::before {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M0 0h24v24H0z" fill="none"/><path d="M20.5 11H19V7c0-1.1-.9-2-2-2h-4V3.5C13 2.12 11.88 1 10.5 1S8 2.12 8 3.5V5H4c-1.1 0-1.99.9-1.99 2v3.8H3.5c1.49 0 2.7 1.21 2.7 2.7s-1.21 2.7-2.7 2.7H2V20c0 1.1.9 2 2 2h3.8v-1.5c0-1.49 1.21-2.7 2.7-2.7 1.49 0 2.7 1.21 2.7 2.7V22H17c1.1 0 2-.9 2-2v-4h1.5c1.38 0 2.5-1.12 2.5-2.5S21.88 11 20.5 11z"/></svg>');
+}
 
 /** These are still icons, but w/o the auto-color invert / opacity / etc. that come with .lh-report-icon */
 
@@ -574,6 +581,30 @@
 
 .lh-checklist-item {
   margin: 10px 0 10px 0;
+}
+
+/* Baseline Status */
+.lh-baseline-status {
+  display: flex;
+  align-items: center;
+}
+.lh-baseline-status::before {
+  content: "";
+  display: inline-block;
+  width: 18px;
+  height: 10px;
+  margin-right: 6px;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+.lh-baseline-status--high::before {
+  background-image: var(--baseline-high-icon-url);
+}
+.lh-baseline-status--low::before {
+  background-image: var(--baseline-low-icon-url);
+}
+.lh-baseline-status--limited::before {
+  background-image: var(--baseline-limited-icon-url);
 }
 
 /* Score */
@@ -2005,6 +2036,10 @@ details[open] .lh-clump-toggletext--hide { display: block;}
   cursor: unset; /* disable pointer cursor from report-icon */
 }
 
+.lh-meta__item a {
+  color: inherit;
+}
+
 .lh-meta__item.lh-tooltip-boundary {
   text-decoration: dotted underline var(--color-gray-500);
   cursor: help;
@@ -2254,10 +2289,7 @@ details[open] .lh-clump-toggletext--hide { display: block;}
   animation-fill-mode: forwards;
 }
 .lh-exp-gauge-component .state--peek .lh-exp-gauge__inner .lh-exp-gauge__arc {
-  opacity: 1;
-}
-.lh-exp-gauge-component .state--peek .lh-exp-gauge__arc.lh-exp-gauge--faded {
-  opacity: 0.3; /* just a tad stronger cuz its fighting with a big solid arg */
+  opacity: 0.1;
 }
 /* do i need to set expanded and override this? */
 .lh-exp-gauge-component .state--peek .lh-exp-gauge__arc--metric.lh-exp-gauge--miniarc {

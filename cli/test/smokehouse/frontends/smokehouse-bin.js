@@ -33,9 +33,10 @@ const coreTestDefnsPath =
  * contingent on having built all the bundles.
  */
 const runnerPaths = {
-  cli: '../lighthouse-runners/cli.js',
-  bundle: '../lighthouse-runners/bundle.js',
-  devtools: '../lighthouse-runners/devtools.js',
+  'cli': '../lighthouse-runners/cli.js',
+  'bundle': '../lighthouse-runners/bundle.js',
+  'devtools': '../lighthouse-runners/devtools.js',
+  'devtools-mcp': '../lighthouse-runners/devtools-mcp.js',
 };
 
 /**
@@ -146,7 +147,7 @@ async function begin() {
       },
       'runner': {
         default: 'cli',
-        choices: ['cli', 'bundle', 'devtools'],
+        choices: ['cli', 'bundle', 'devtools', 'devtools-mcp'],
         describe: 'The method of running Lighthouse',
       },
       'tests-path': {
@@ -215,7 +216,9 @@ async function begin() {
     if (testDefnPath === coreTestDefnsPath) {
       const {createServers} = await import('../../fixtures/static-server.js');
       servers = await createServers();
-      takeNetworkRequestUrls = servers[0].takeRequestUrls.bind(servers[0]);
+      if (servers.length) {
+        takeNetworkRequestUrls = servers[0].takeRequestUrls.bind(servers[0]);
+      }
     }
 
     const prunedTestDefns = pruneExpectedNetworkRequests(testDefns, takeNetworkRequestUrls);
@@ -233,7 +236,7 @@ async function begin() {
 
     smokehouseResult = (await runSmokehouse(prunedTestDefns, options));
   } finally {
-    servers?.forEach(s => s.close());
+    if (servers) await Promise.all(servers.map(s => s.close()));
   }
 
   let smokehouseOutputDir;
@@ -243,7 +246,7 @@ async function begin() {
     smokehouseOutputDir = `${LH_ROOT}/.tmp/smokehouse-failures`;
     testResultsToOutput = smokehouseResult.testResults.filter(r => r.failed);
   } else if (!process.env.CI) {
-    // Otherwise, only write to disk in debug mode.
+    // Otherwise, write all results to disk when running locally.
     smokehouseOutputDir = `${LH_ROOT}/.tmp/smokehouse-output`;
     testResultsToOutput = smokehouseResult.testResults;
   }

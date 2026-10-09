@@ -24,7 +24,7 @@ fs.mkdirSync(distDir, {recursive: true});
 function buildEntryPoint() {
   const inFile = `${sourceDir}/${entrySourceName}`;
   const outFile = `${distDir}/${entryDistName}`;
-  return buildBundle(inFile, outFile, {minify: false});
+  return buildBundle(inFile, outFile, {minify: true});
 }
 
 async function buildReportGenerator() {
@@ -65,8 +65,22 @@ async function buildStaticServerBundle() {
   });
 }
 
-await Promise.all([
-  buildEntryPoint(),
-  buildReportGenerator(),
-  buildStaticServerBundle(),
-]);
+async function runBuild() {
+  fs.mkdirSync(distDir, {recursive: true});
+  await Promise.all([
+    buildEntryPoint(),
+    buildReportGenerator(),
+    buildStaticServerBundle(),
+  ]);
+}
+
+if (import.meta.main) {
+  await runBuild();
+}
+
+export {
+  buildEntryPoint,
+  buildReportGenerator,
+  buildStaticServerBundle,
+  runBuild,
+};

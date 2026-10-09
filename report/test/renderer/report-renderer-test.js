@@ -9,6 +9,7 @@ import assert from 'assert/strict';
 import jsdom from 'jsdom';
 import jestMock from 'jest-mock';
 
+import {createQuietConsole} from './jsdom-setup.js';
 import {ReportUtils} from '../../renderer/report-utils.js';
 import {DOM} from '../../renderer/dom.js';
 import {DetailsRenderer} from '../../renderer/details-renderer.js';
@@ -34,7 +35,7 @@ describe('ReportRenderer', () => {
       };
     };
 
-    const {window} = new jsdom.JSDOM();
+    const {window} = new jsdom.JSDOM(undefined, {virtualConsole: createQuietConsole()});
     global.self = window;
     global.HTMLElement = window.HTMLElement;
     global.CustomEvent = window.CustomEvent;
@@ -64,8 +65,9 @@ describe('ReportRenderer', () => {
       assert.ok(output.querySelector('.lh-header-container'), 'has a header');
       assert.ok(output.querySelector('.lh-report'), 'has report body');
       // 3 sets of gauges - one in sticky header, one in scores header, and one in each section.
+      // exclude agentic browsing category, which uses a fractional score
       assert.equal(output.querySelectorAll('.lh-gauge__wrapper, .lh-exp-gauge__wrapper').length,
-          Object.keys(sampleResults.categories).length * 3, 'renders category gauges');
+          (Object.keys(sampleResults.categories).length - 1) * 3, 'renders category gauges');
     });
 
     it('renders additional reports by replacing the existing one', () => {
@@ -101,7 +103,13 @@ describe('ReportRenderer', () => {
       const container = renderer._dom.document().body;
       const output = renderer.renderReport(sampleResultsCopy, container);
 
-      const defaults = ['Performance', 'Accessibility', 'Best Practices', 'SEO'];
+      const defaults = [
+        'Performance',
+        'Accessibility',
+        'Best Practices',
+        'SEO',
+        'Agentic Browsing',
+      ];
 
       function isDefaultGauge(el) {
         return defaults.includes(el.querySelector('.lh-gauge__label').textContent);
@@ -114,10 +122,11 @@ describe('ReportRenderer', () => {
         .querySelectorAll('.lh-scores-header > a[class*="lh-gauge"]')).findIndex(isPluginGauge);
 
       const scoresHeaderElem = output.querySelector('.lh-scores-header');
-      assert.equal(scoresHeaderElem.children.length - 1, indexOfPluginGauge);
+      assert.equal(scoresHeaderElem.children.length - 2, indexOfPluginGauge);
 
       for (let i = 0; i < scoresHeaderElem.children.length; i++) {
         const gauge = scoresHeaderElem.children[i];
+        if (gauge.querySelector('.lh-fraction__label')) continue;
 
         assert.ok(gauge.classList.contains('lh-gauge__wrapper'));
         if (i >= indexOfPluginGauge) {
@@ -148,10 +157,12 @@ describe('ReportRenderer', () => {
         '#index=0&anchor=accessibility',
         '#index=0&anchor=best-practices',
         '#index=0&anchor=seo',
+        '#index=0&anchor=agentic-browsing',
         '#index=0&anchor=performance',
         '#index=0&anchor=accessibility',
         '#index=0&anchor=best-practices',
         '#index=0&anchor=seo',
+        '#index=0&anchor=agentic-browsing',
       ]);
     });
 
@@ -266,6 +277,67 @@ describe('ReportRenderer', () => {
       expect(itemsTxt).toContain(sampleResults.environment.networkUserAgent);
       expect(itemsTxt).toMatch('412x823, DPR 1.75');
       expect(itemsTxt).toContain('Point-in-time snapshot');
+    });
+
+    it('renders one footer row per plugin, linking each to npm', () => {
+      sampleResults.categories['lighthouse-plugin-someplugin'] = {
+        id: 'lighthouse-plugin-someplugin',
+        title: 'Some Plugin',
+        auditRefs: [],
+      };
+      sampleResults.categories['lighthouse-plugin-other'] = {
+        id: 'lighthouse-plugin-other',
+        title: 'Other Plugin',
+        auditRefs: [],
+      };
+      const footer = renderer._renderReportFooter(sampleResults);
+
+      const pluginItems = Array.from(footer.querySelectorAll('.lh-report-icon--plugin'));
+      expect(pluginItems).toHaveLength(2);
+
+      // The package name alone -- no label prefix, since 'plugin' is already in the name.
+      expect(pluginItems.map(el => el.textContent)).toEqual([
+        'lighthouse-plugin-someplugin',
+        'lighthouse-plugin-other',
+      ]);
+      expect(pluginItems.map(el => el.querySelector('a').href)).toEqual([
+        'https://www.npmjs.com/package/lighthouse-plugin-someplugin',
+        'https://www.npmjs.com/package/lighthouse-plugin-other',
+      ]);
+    });
+
+    it('renders a plugin version when the LHR credits carry one', () => {
+      sampleResults.categories['lighthouse-plugin-someplugin'] = {
+        id: 'lighthouse-plugin-someplugin',
+        title: 'Some Plugin',
+        auditRefs: [],
+      };
+      sampleResults.environment.credits = {
+        ...sampleResults.environment.credits,
+        'lighthouse-plugin-someplugin': '1.2.3',
+      };
+      const footer = renderer._renderReportFooter(sampleResults);
+
+      const pluginItem = footer.querySelector('.lh-report-icon--plugin');
+      expect(pluginItem.textContent).toEqual('lighthouse-plugin-someplugin 1.2.3');
+    });
+
+    it('renders a plugin without a version when the LHR credits lack one', () => {
+      sampleResults.categories['lighthouse-plugin-someplugin'] = {
+        id: 'lighthouse-plugin-someplugin',
+        title: 'Some Plugin',
+        auditRefs: [],
+      };
+      const footer = renderer._renderReportFooter(sampleResults);
+
+      const pluginItem = footer.querySelector('.lh-report-icon--plugin');
+      expect(pluginItem.textContent).toEqual('lighthouse-plugin-someplugin');
+    });
+
+    it('renders no plugins footer item when no plugins were used', () => {
+      const footer = renderer._renderReportFooter(sampleResults);
+
+      expect(footer.querySelectorAll('.lh-report-icon--plugin')).toHaveLength(0);
     });
   });
 

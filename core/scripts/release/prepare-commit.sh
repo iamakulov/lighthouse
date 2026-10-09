@@ -34,6 +34,8 @@ git checkout -b "$BRANCH_NAME"
 # Install the dependencies.
 yarn install
 
+yarn build-report
+
 # Bump the version in package.json and others.
 node core/scripts/release/bump-versions.js $NEW_VERSION
 
@@ -49,8 +51,19 @@ NEW_CONTRIBUTORS=$(node core/scripts/print-contributors.js v${OLD_VERSION} HEAD)
 set +x
 
 if [[ $(echo "$NEW_CONTRIBUTORS" | wc -l) -ge 1 ]]; then
-  printf "Thanks to our new contributors 👽🐷🐰🐯🐻! \n$NEW_CONTRIBUTORS\n" | cat - changelog.md > tmp-changelog
-  mv tmp-changelog changelog.md
+  export CONTRIBUTORS_TEXT="
+## New contributors
+
+Thanks to our new contributors 👽🐷🐰🐯🐻!
+
+$NEW_CONTRIBUTORS"
+  node -e "
+    const fs = require('fs');
+    const text = fs.readFileSync('changelog.md', 'utf8');
+    const target = '## Notable Changes';
+    const replacement = process.env.CONTRIBUTORS_TEXT + '\n\n' + target;
+    fs.writeFileSync('changelog.md', text.replace(target, replacement));
+  "
 fi
 
 git add changelog.md core/test/results/ proto/
